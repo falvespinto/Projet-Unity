@@ -4,9 +4,20 @@ using UnityEngine;
 
 public class MyPlayer : MonoBehaviour
 {
+    [Header("Translation & Rotation")]
     [SerializeField] float m_TranslationSpeed;
     [Tooltip("rotation speed in °/s")]
     [SerializeField] float m_RotSpeed;
+
+    [Header("Ball Shot")]
+    [SerializeField] GameObject m_BallPrefab;
+    [SerializeField] Transform m_BallSpawnPoint;
+    [SerializeField] float m_BallInitTranslationSpeed;
+    [SerializeField] float m_BallShotCooldownDuration;
+
+
+    float m_BallShotNextTime;
+
 
     Transform m_Transform;
     Rigidbody m_Rigidbody;
@@ -20,9 +31,9 @@ public class MyPlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        m_BallShotNextTime = Time.time;
     }
-
+    //
     //Update is called once per frame
     //void Update()
     //{
@@ -55,8 +66,11 @@ public class MyPlayer : MonoBehaviour
         float hAxis = Input.GetAxis("Horizontal");
         float vAxis = Input.GetAxis("Vertical");
 
-        //Vector3 moveVect =vAxis * m_Transform.forward * m_TranslationSpeed * Time.fixedDeltaTime;
+        bool isFiring = Input.GetButton("Fire1");
 
+
+        //Translation
+        //Vector3 moveVect =vAxis * m_Transform.forward * m_TranslationSpeed * Time.fixedDeltaTime;
         //m_Rigidbody.MovePosition(m_Rigidbody.position+moveVect);
 
 
@@ -67,24 +81,44 @@ public class MyPlayer : MonoBehaviour
         //Rotation
         //1
 
-        float rotAngle = hAxis * m_RotSpeed * Time.fixedDeltaTime;
+        //float rotAngle = hAxis * m_RotSpeed * Time.fixedDeltaTime;
 
-        Quaternion qRot = Quaternion.AngleAxis(rotAngle, m_Transform.up);
-        Quaternion targetOrientation = qRot * m_Rigidbody.rotation;
+        //Quaternion qRot = Quaternion.AngleAxis(rotAngle, m_Transform.up);
+        //Quaternion targetOrientation = qRot * m_Rigidbody.rotation;
 
-        Quaternion qStraightRotQuaternion = Quaternion.FromToRotation(m_Transform.up, Vector3.up);
+        //Quaternion qStraightRotQuaternion = Quaternion.FromToRotation(m_Transform.up, Vector3.up);
 
 
-        Quaternion newOrientation = Quaternion.RotateTowards(targetOrientation, qStraightRotQuaternion, Time.fixedDeltaTime);
-        //Quaternion.Lerp(m_Rigidbody.rotation, qStraightRot * qRot * m_Rigidbody.rotation, Time.fixedDeltaTime*4);
-        m_Rigidbody.MoveRotation(targetOrientation);
+        //Quaternion newOrientation = Quaternion.RotateTowards(targetOrientation, qStraightRotQuaternion, Time.fixedDeltaTime);
+        ////Quaternion.Lerp(m_Rigidbody.rotation, qStraightRot * qRot * m_Rigidbody.rotation, Time.fixedDeltaTime*4);
+        //m_Rigidbody.MoveRotation(targetOrientation);
 
 
         //2
 
-        //Vector3 newAngularVelocity =hAxis* m_Transform.up * m_RotSpeed*Mathf.Deg2Rad;
-        //Vector3 deltaAngularVelocity = newAngularVelocity - m_Rigidbody.angularVelocity;
-        //m_Rigidbody.AddTorque(deltaAngularVelocity, ForceMode.VelocityChange);
+        Vector3 newAngularVelocity =hAxis* m_Transform.up * m_RotSpeed*Mathf.Deg2Rad;
+        Vector3 deltaAngularVelocity = newAngularVelocity - m_Rigidbody.angularVelocity;
+        m_Rigidbody.AddTorque(deltaAngularVelocity, ForceMode.VelocityChange);
+
+
+
+        //Firing Balls
+
+        if (isFiring && Time.time > m_BallShotNextTime)
+        {
+            ShootBall();
+            m_BallShotNextTime = Time.fixedTime+m_BallShotCooldownDuration;
+        }
+            
+    }
+
+    void ShootBall()
+    {
+        GameObject newBallGO = Instantiate(m_BallPrefab);
+        newBallGO.transform.position = m_BallSpawnPoint.position;
+        Rigidbody newBallRB = newBallGO.GetComponent<Rigidbody>();
+        newBallRB.AddForce(m_BallSpawnPoint.forward * m_BallInitTranslationSpeed, ForceMode.VelocityChange);
+
     }
 
 }
