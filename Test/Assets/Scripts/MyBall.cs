@@ -23,7 +23,7 @@ public class MyBall : MonoBehaviour
         //Message de collision dans la console
         //Debug.Log(collision.gameObject.name + " COLLIDED WITH " + name);
 
-        //Changement de couleur
+        //Changement de couleu66r
         MeshRenderer mr = collision.gameObject.GetComponentInChildren<MeshRenderer>();
         if(mr)
             mr.material.color = Random.ColorHSV();

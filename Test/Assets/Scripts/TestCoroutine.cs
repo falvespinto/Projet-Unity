@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using AT = Tools.AnimationTools;
 
 public class TestCoroutine : MonoBehaviour
@@ -42,4 +43,16 @@ public class TestCoroutine : MonoBehaviour
     //{
 
     //}
+
+    IEnumerator FetchDataFromWeb(string url)
+    {
+        byte[] bytes;
+        UnityWebRequest request = new UnityWebRequest(url);
+        AsyncOperation async = request.SendWebRequest();
+        yield return async;
+        if (string.IsNullOrEmpty(request.error))
+        {
+            bytes = request.uploadHandler.data;
+        }
+    }
 }
